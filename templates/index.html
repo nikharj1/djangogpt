@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" 
           content="width=device-width, initial-scale=1.0">
+          <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
           <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <title>DilGPT</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -92,13 +93,20 @@
             </div>
             <div class="chat-box" id="chat-box"></div>
             <div class="input-container">
+              
                 <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
             <input name="file" id="fileinput" type="file" style="display: none;">
-                <input type="text" id="user-input"  name="prompt"
+       
+                {% comment %} <input type="text" id="user-input"  name="prompt"
                        placeholder="Type your message...">
                 <button id="send-button">
+                    
                   <b>&uarr;</b>
-                  </button>
+                  </button> {% endcomment %}
+                  <fieldset class="fieldInput">
+                    <input class="form-input" type="text" id="user-input"  name="prompt" placeholder="Enter Message...">
+                    <button id="send-button" class="form-submit"><i style='font-size:24px; margin-bottom:15px;' class='far'>&#xf1d8;</i></button>
+                  </fieldset>
             </div>
         </div>
     </div>
@@ -113,7 +121,18 @@
                 const fileName = $(this).val().split('\\').pop(); 
                 $("#file-name").text(fileName || ''); 
             });
-    
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            }
+            
+            function formatContent(content) {
+                // Escape HTML tags and convert newlines to <br>
+                const escapedContent = escapeHtml(content);
+                return escapedContent.replace(/\n/g, "<br>");
+            }
             $("#send-button").click(function(event) {
                 $("#text").hide();
                 event.preventDefault(); // Prevent default form submission if inside a form
@@ -145,25 +164,22 @@
                     contentType: false, // Set contentType to false for FormData
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.message)
+                            console.log(response.message);
                             $(".typing-indicator").remove();
+                            
+                            let messageContent;
+                    
                             if (response.message.includes(".png")) {
-                                // Construct the image URL
                                 const imageUrl = `http://127.0.0.1:8000/media/Bot_response/${response.message}`;
-                                
-                                // Create the image HTML
                                 const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
-                                
-                                // Append the image to the chat box
                                 $("#chat-box").append(imageHtml);
                             } else {
-                                $("#chat-box").append(`<div class="bot-message">${response.message}</div>`);
+                                messageContent = formatContent(response.message);
+                                $("#chat-box").append(`<div class="bot-message">${messageContent}</div>`);
                             }
                             
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
-                           
-                            
                         } else {
                             console.error('Bot response error: ', response.message);
                         }

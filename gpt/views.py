@@ -55,7 +55,9 @@ def generate_text(request, prompt):
     response = requests.post(url, headers=headers, data=payload)
     
     if response.status_code == 200:
+       
         data = json.loads(response.text)
+        
         content = data['choices'][0]['message']['content']
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
@@ -204,3 +206,5 @@ def chat_with_bot(request):
         else:
             return JsonResponse({'success': False, 'message':'Cant undertand..!! try again..!!'})
         
+
+

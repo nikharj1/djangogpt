@@ -275,6 +275,8 @@ input:checked+.slider:before {
     display: flex;
     padding: 15px;
     border-top: 0.01px solid #5c5b5b;
+    justify-content: center;
+    align-items: center;
 }
 
 input[type="text"] {
@@ -668,3 +670,39 @@ button {
         border-color: transparent;
     }
 }
+
+
+.fieldInput {
+    display: block;
+    width: 80%;
+    height: 35px;
+    position: relative;
+    box-shadow: 0 4px 20px 0 rgba(0,0,0,0.09);
+    border-radius: 35px;
+    overflow: hidden;
+    .form-input {
+      width: 200px;
+      background: none;
+      border: none;
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 400;
+      color: #6A7C92;
+      &:focus {
+        outline: none;
+      }
+    }
+    .form-submit {
+        color: #6A7C92;
+        background-color: #000000;
+        position: absolute;
+        right: -6px;
+        top: -13px;
+        width: 67px;
+        height: 76px;
+        border: none;
+        box-shadow: 5px -2px 81px 1px rgba(0, 0, 0, 0.09);
+        cursor: pointer;
+        margin: 6px;
+    }
+  } 
