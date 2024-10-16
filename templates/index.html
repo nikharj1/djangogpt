@@ -93,10 +93,11 @@
             </div>
             <div class="chat-box" id="chat-box"></div>
             <div class="input-container">
+                {% if request.user.is_authenticated %}
                 <span id="file-name" style="margin-left: 10px; font-size: 14px; color: #555; display: flex; align-items: center; justify-content: center;"></span>
                 <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
             <input name="file" id="fileinput" type="file" style="display: none;">
-       
+            {% endif %}
                 {% comment %} <input type="text" id="user-input"  name="prompt"
                        placeholder="Type your message...">
                 <button id="send-button">
@@ -140,7 +141,7 @@
                 
                 const prompt = $("#user-input").val().trim();
                 const fileInput = $("#fileinput")[0]; // Get the file input element
-                const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+                const file = fileInput && fileInput.files.length > 0 ? fileInput.files[0] : null;
     
                 if (prompt) {
                     if (file) { // Fixed: added parentheses around condition
@@ -173,7 +174,7 @@
                     contentType: false, // Set contentType to false for FormData
                     success: function(response) {
                         if (response.success) {
-                            console.log(response.message);
+                        
                             $(".typing-indicator").remove();
                             
                             let messageContent;
@@ -190,11 +191,11 @@
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {
-                            console.error('Bot response error: ', response.message);
+                            console.error('Bot response error: ');
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error('Ajax request failed: ', status, error);
+                        console.error('Ajax request failed: ');
                     }
                 });
             });
@@ -216,7 +217,7 @@
             $(".conversation-content").on("click", ".session", function(event) {
                 $('#loader').show()
                 const date = $(this).val();
-                console.log(date);
+              
                 $.ajax({
                     url: '{% url "session_chat" %}',  
                     type: 'POST',
@@ -237,7 +238,7 @@
                                 const userMessage = chat.fields.user_message;
                                 const botResponse = chat.fields.bot_response;
                                 const imageUrl = chat.fields.image_path;
-                                console.log(imageUrl);
+                                
                     
                                 // Display user message
                                 $("#chat-box").append(`<div class="user-message">${userMessage}</div>`);
@@ -252,12 +253,12 @@
                             scrollToBottom(); // Scroll to the bottom of the chat box
                         } else {
                          
-                            console.error('Bot response error: ', response.message);
+                            console.error('Bot response error: ');
                         }
                     },
                     
                     error: function(xhr, status, error) {
-                        console.error('Ajax request failed: ', status, error);
+                        console.error('Ajax request failed: ');
                     }
                 });
             });
@@ -309,6 +310,7 @@
 </body>
 
 </html>
+
 
 
 
