@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from bs4 import BeautifulSoup
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import base64
@@ -59,72 +60,137 @@ def generate_text(request, prompt):
         data = json.loads(response.text)
         
         content = data['choices'][0]['message']['content']
+        
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
     else:
         content = "i can't understand please try again"
+        chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
+        chat_save.save()
     return content
-
-import os
-from django.conf import settings
 
 def generate_text_to_image(request, prompt):
     try:
-        # Generate the image
-        output = client.text_to_image(
-            prompt=prompt,
-            model=settings.TEXT_IMAGE_MODEL,
-            num_images=1,
-            guidance_scale=7.5,
-        )
+        url = settings.TEXT_TO_IMAGE
+        payload = {
+            "prompt": prompt,
+            "steps": 5
+        }
+        response = requests.post(url=f'{url}', json=payload, verify=False)
+        r = response.json()
 
-        # Construct the image filename and path
+        image_data = base64.b64decode(r['images'][0])
         image_filename = f"{prompt.replace(' ', '_')}.png"
-        media_directory = os.path.join(settings.MEDIA_ROOT, 'Bot_response')  # Subfolder
+        media_directory = os.path.join(settings.MEDIA_ROOT, 'Bot_response') 
         media_path = os.path.join(media_directory, image_filename)
 
-        # Ensure the Bot_response directory exists
+       
         os.makedirs(media_directory, exist_ok=True)
 
-        # Save the output image to the media path
-        output.save(media_path)
+        
+        with open(media_path, 'wb') as f:
+            f.write(image_data)
 
         # Save the chat history with the image path
         chat_save = chat_history.objects.create(
             user_message=prompt,
             bot_response="Generated Image",
-            image_path=os.path.join('Bot_response', image_filename),  # Store relative path
+            image_path=os.path.join('Bot_response', image_filename),
             username=request.user.username
         )
         chat_save.save()
-
-        print(f"Image generated and saved as {media_path}")
-        return image_filename  # Returning the filename
+        return image_filename
+        
 
     except Exception as e:
         print(f"Error generating image: {e}")
-        return None
+        chat_save = chat_history.objects.create(
+            user_message=prompt,
+            bot_response=e,
+            username=request.user.username
+        )
+        chat_save.save()
+        return "Something went wrong..!!!"
+
+
+
+
+
+# def generate_text_to_image(request, prompt):
+#     try:
+#         # Generate the image
+#         output = client.text_to_image(
+#             prompt=prompt,
+#             model=settings.TEXT_IMAGE_MODEL,
+#             num_images=1,
+#             guidance_scale=7.5,
+#         )
+
+#         # Construct the image filename and path
+#         image_filename = f"{prompt.replace(' ', '_')}.png"
+#         media_directory = os.path.join(settings.MEDIA_ROOT, 'Bot_response')  # Subfolder
+#         media_path = os.path.join(media_directory, image_filename)
+
+#         # Ensure the Bot_response directory exists
+#         os.makedirs(media_directory, exist_ok=True)
+
+#         # Save the output image to the media path
+#         output.save(media_path)
+
+#         # Save the chat history with the image path
+#         chat_save = chat_history.objects.create(
+#             user_message=prompt,
+#             bot_response="Generated Image",
+#             image_path=os.path.join('Bot_response', image_filename),  # Store relative path
+#             username=request.user.username
+#         )
+#         chat_save.save()
+
+#         print(f"Image generated and saved as {media_path}")
+#         return image_filename  # Returning the filename
+
+#     except Exception as e:
+#         print(f"Error generating image: {e}")
+#         return None
 
     
 def image_text_to_text(request, prompt, image):
-    with open(image, "rb") as image_file:
-        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
-    url = settings.IMAGE_TEXT_TO_TEXT
-    payload = json.dumps({
-        "model": "llava",
-        "prompt": prompt,
-        "images":[encoded_image]
-    })
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer 4321'
-    }
-    response = requests.post(url, headers=headers, data=payload)
-    if response.status_code == 200:
-        data = json.loads(response.text)
-    else:
-        content = "i can't understand please try again"
-    return content
+    file_name = os.path.basename(image)
+    try:
+        encoded_image = base64.b64encode(image.read()).decode('utf-8')
+        url = settings.IMAGE_TEXT_TO_TEXT
+        payload = json.dumps({
+            "model": "llava",
+            "prompt": prompt,
+            "images":[encoded_image]
+        })
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer 4321'
+        }
+        response = requests.post(url, headers=headers, data=payload, verify=False)
+        if response.status_code == 200:
+            data = json.loads(response.text)
+            # chat_save = chat_history.objects.create(
+            #     user_message=prompt,
+            #     bot_response="Generated Image",
+            #     input_image =f"User_Uploaded/{file_name}",
+            #     username=request.user.username
+            # )
+            # chat_save.save()
+        else:
+            content = "i can't understand please try again"
+        return content
+    except Exception as e:
+        print(f"Error image to text visionary: {e}")
+        chat_save = chat_history.objects.create(
+            user_message=prompt,
+            bot_response=e,
+            input_image =f"User_Uploaded/{file_name}",
+            username=request.user.username
+        )
+        chat_save.save()
+        return "Something went wrong..!!!"
 
 
 def authentication(request):
@@ -189,6 +255,7 @@ def chat_with_bot(request):
     if request.method == "POST":
         prompt = request.POST.get('prompt', '')
         file = request.FILES.get('file', None)
+    
         if prompt != '' and file == None:
             if "image" in prompt.lower() or "generate" in prompt.lower():
                 # image_prompt = prompt.replace("image", "").strip()
@@ -201,10 +268,32 @@ def chat_with_bot(request):
             content = "No prompt only file : How may i help you with this..."
             return JsonResponse({'success': True, 'message':content})
         elif prompt != '' and file != None:
-            content = image_text_to_text(request, prompt, file)
+
+            media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')  # Subfolder
+            os.makedirs(media_directory, exist_ok=True)
+
+            # Save the uploaded file
+            file_path = os.path.join(media_directory, file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            # Process the image and generate a response
+            content = image_text_to_text(request, prompt, file_path)
             return JsonResponse({'success': True, 'message':content})
         else:
             return JsonResponse({'success': False, 'message':'Cant undertand..!! try again..!!'})
         
 
 
+
+
+
+# clean_content = BeautifulSoup(content, 'html.parser').get_text()
+# lines = clean_content.split('\n')
+# formatted_lines = [line.strip() for line in lines if line.strip()]
+
+
+# formatted_content = '\n\n'.join(formatted_lines)
+
+# print(formatted_content)

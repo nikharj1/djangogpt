@@ -194,9 +194,7 @@ body {
     background-color: #2f2f2f;
     color: #fff;
 }
-.dark-mode .bot-message {
-    color: #fff;
-}
+
 
 h1 {
     color: #cfcfcf;
@@ -274,7 +272,9 @@ input:checked+.slider:before {
 .input-container {
     display: flex;
     padding: 15px;
-    border-top: 0.01px solid #5c5b5b;
+    position: relative; /* or absolute, depending on your layout */
+    bottom: 0; /* Adjust based on your design */
+    transition: bottom 0.3s; /* Optional: for a smooth transition */
     justify-content: center;
     align-items: center;
 }
@@ -357,8 +357,8 @@ button {
 
 .bot-message {
     max-width: 75%;
-    color: #fff;
-    background: #0c0c0c;
+    color: #000000;
+    background: #c3c1c1;
     font-weight: 400;
     padding: 10px;
     border-radius: 20px;
@@ -674,14 +674,14 @@ button {
 
 .fieldInput {
     display: block;
-    width: 80%;
+    width: 768px;
     height: 35px;
     position: relative;
     box-shadow: 0 4px 20px 0 rgba(0,0,0,0.09);
     border-radius: 35px;
     overflow: hidden;
     .form-input {
-      width: 200px;
+      width: 90%;
       background: none;
       border: none;
       padding: 12px 20px;

@@ -93,7 +93,7 @@
             </div>
             <div class="chat-box" id="chat-box"></div>
             <div class="input-container">
-              
+                <span id="file-name" style="margin-left: 10px; font-size: 14px; color: #555; display: flex; align-items: center; justify-content: center;"></span>
                 <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
             <input name="file" id="fileinput" type="file" style="display: none;">
        
@@ -135,6 +135,7 @@
             }
             $("#send-button").click(function(event) {
                 $("#text").hide();
+                $(".input-container").css("bottom", "0px");
                 event.preventDefault(); // Prevent default form submission if inside a form
                 
                 const prompt = $("#user-input").val().trim();
@@ -142,12 +143,20 @@
                 const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
     
                 if (prompt) {
-                    $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+                    if (file) { // Fixed: added parentheses around condition
+                        const imageUrl = `http://127.0.0.1:8000/media/User_Uploaded/${file.name}`; // Use file.name instead of fileInput
+                        const imageHtml = `<img class="user-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Uploaded Image" />`;
+                        $("#chat-box").append(imageHtml);
+                        $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+                    } else {
+                        $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+                    }
                     $("#chat-box").append(`<div class="bot-message typing-indicator">...</div>`);
                     scrollToBottom(); 
                 }
                 $("#user-input").val(""); // Clear input
-                // Create a FormData object for file upload
+                $("#fileinput").val(""); // Corrected: Clear the file input, not #fileinputs
+                $("#file-name").text(""); // Assuming there's an element for file name
                 const formData = new FormData();
                 formData.append('prompt', prompt);
                 if (file) {
@@ -288,13 +297,35 @@
                     document.getElementById("text").innerHTML += text.charAt(index);
                     index++;
                     setTimeout(type, 35); // Adjust the speed here (in milliseconds)
+                } else {
+                    // Once typing is done, hide the text and adjust the input container's position
+                     // Hides the typewriter text
+                    $(".input-container").css("bottom", "290px"); // Adjust the bottom position of the input container
                 }
             }
 
             type();
+
 
         </script>
     
 </body>
 
 </html>
+
+
+
+{% comment %} if fileName {
+    const imageUrl = `http://127.0.0.1:8000/media/User_Uploaded/${fileName}`;
+    const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
+    $("#chat-box").append(imageHtml);
+    $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+} else{
+
+    $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+}
+$("#chat-box").append(`<div class="bot-message typing-indicator">...</div>`);
+scrollToBottom(); 
+}
+$("#user-input").val(""); // Clear input
+$("#fileinputs").val(""); {% endcomment %}

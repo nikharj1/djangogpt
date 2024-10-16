@@ -140,8 +140,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 TEXT_TO_TEXT = "https://gpt.dil.in:5000/v1/chat/completions"
 
-TEXT_IMAGE_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
+# TEXT_TO_IMAGE = "stabilityai/stable-diffusion-xl-base-1.0"
+
+TEXT_TO_IMAGE = "http://10.11.13.243:7860/sdapi/v1/txt2img"
 
 API_KEY_HUGGINGFACE = "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"
 
-IMAGE_TEXT_TO_TEXT = "http://localhost:11434/api/generate"
+IMAGE_TEXT_TO_TEXT = "http://10.11.13.243:7860/api/generate"
