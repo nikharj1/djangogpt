@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+
+<head>
+    <title>Authentication Form</title>
+    <link rel="shortcut icon" href="https://www.dil.in/wp-content/uploads/2015/12/favi.png">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="main">
+        <h1>DilGPT</h1>
+        <h3>Enter your login credentials</h3>
+        {% if messages %}
+            <div class="alert alert-primary" role="alert">
+                {% for message in messages %}
+                <p style="color:red;">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        <form action="{% url "authentication" %}" method="post"> {% csrf_token %}
+            <label for="first">
+                Username:
+            </label>
+            <input type="text" id="first" name="username" placeholder="Enter your Username" required>
+
+            <label for="password">
+                Password:
+            </label>
+            <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+
+            <div class="wrap">
+                <button type="submit" onclick="solve()">
+                    Submit
+                </button>
+            </div>
+        </form>
+       
+    </div>
+</body>
+
+</html>

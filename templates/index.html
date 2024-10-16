@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <link rel="shortcut icon" href="https://www.dil.in/wp-content/uploads/2015/12/favi.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" 
+          content="width=device-width, initial-scale=1.0">
+          <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <title>DilGPT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href=
+"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <div class="sidebar collapsed">
+        
+        <div class="tooltip">
+            <span class="tooltiptext">
+              Open Sidebar
+              </span>
+            <button id="sidebar-toggle" style="border:none;">
+              <i class="fas fa-chevron-right" ></i>
+              </button>
+        </div>
+        <div class="sidebar-content">
+            <a href="{% url "home" %}"><button id="new-conversation-btn pb-5" style=" margin-left: 15px ! important; border: 1px solid ! important;">
+              New Chat
+                </button></a>
+               
+                <div class="conversation-list pt-3">
+                    <div class="conversation">
+                        <p class="conversation-content">
+                            {% if all_chats and request.user.is_authenticated %}
+                            {% for chat in all_chats %}
+                            <button class="session" id="session" value="{{ chat }}">{{ chat }}</button><br>
+                            {% endfor %}
+                            {% else %}
+                            No conversation yet
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% if request.user.is_authenticated %}
+            <div class="logout">
+            <a href="{% url "handlelogout" %}"><i style="font-size:24px" class="fa">&#xf08b;</i>&nbsp;Logout</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="chat-container light-mode">
+        <div class="chat-content">
+            <div class="chat-header">
+                <div class="logo-container">
+                    <h1>DilGPT&nbsp;
+                      <i class="fa fa-caret-down"></i>
+                      </h1>
+                </div>
+                {% if request.user.is_authenticated %}
+                <div class="mode-toggle">
+                    <label class="switch">
+                        <input type="checkbox" id="mode-toggle-checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="mode-icon" class="mode-icon">
+                        <i class="fas fa-sun"></i> <!-- Light mode icon -->
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div class="dropdown">
+                      <img onclick="myFunction()" class="useravatar" src="https://cdn3.iconfinder.com/data/icons/essential-rounded/64/Rounded-31-512.png" style="width:30px; margin-right:25px; height:30px; border-radius:15px;" alt="User Avatar">
+                        <div id="myDropdown" class="dropdown-content">
+                          <a href="#home">Home</a>
+                          <a href="#about">About</a>
+                          <a href="#contact">Contact</a>
+                        </div>
+                      </div>
+                </div>
+               
+                
+                {% else %}
+                <div class="logo-container" style="margin-right:20px;">
+                    <a href="{% url "authentication" %}"><button id="loginbtn" class="login-btn"><div class="flex items-center justify-center">Log in</div></button></a>
+                </div>
+                {% endif %}
+
+            </div>
+            <div class="chat-box" id="chat-box"></div>
+            <div class="input-container">
+                <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
+            <input name="file" id="fileinput" type="file" style="display: none;">
+                <input type="text" id="user-input"  name="prompt"
+                       placeholder="Type your message...">
+                <button id="send-button">
+                  <b>&uarr;</b>
+                  </button>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            $("#upload-icon").click(function() {
+                $("#fileinput").click(); 
+            });
+    
+            $("#fileinput").change(function() {
+                const fileName = $(this).val().split('\\').pop(); 
+                $("#file-name").text(fileName || ''); 
+            });
+    
+            $("#send-button").click(function(event) {
+                event.preventDefault(); // Prevent default form submission if inside a form
+                
+                const prompt = $("#user-input").val().trim();
+                const fileInput = $("#fileinput")[0]; // Get the file input element
+                const file = fileInput.files.length > 0 ? fileInput.files[0] : null;
+    
+                if (prompt) {
+                    $("#chat-box").append(`<div class="user-message">${prompt}</div>`);
+                    $("#chat-box").append(`<div class="bot-message typing-indicator">...</div>`);
+                    scrollToBottom(); 
+                }
+                $("#user-input").val(""); // Clear input
+                // Create a FormData object for file upload
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                if (file) {
+                    formData.append('file', file);
+                }
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+                // AJAX request
+                $.ajax({
+                    url: '{% url "chat_with_bot" %}',  
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Prevent jQuery from converting the data
+                    contentType: false, // Set contentType to false for FormData
+                    success: function(response) {
+                        if (response.success) {
+                            console.log(response.message)
+                            $(".typing-indicator").remove();
+                            if (response.message.includes(".png")) {
+                                // Construct the image URL
+                                const imageUrl = `http://127.0.0.1:8000/media/Bot_response/${response.message}`;
+                                
+                                // Create the image HTML
+                                const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
+                                
+                                // Append the image to the chat box
+                                $("#chat-box").append(imageHtml);
+                            } else {
+                                $("#chat-box").append(`<div class="bot-message">${response.message}</div>`);
+                            }
+                            
+                            // Scroll to the bottom of the chat box
+                            scrollToBottom();
+                           
+                            
+                        } else {
+                            console.error('Bot response error: ', response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ajax request failed: ', status, error);
+                    }
+                });
+            });
+    
+            $("#user-input").keypress(function(e) {
+                if (e.key === 'Enter') {
+                    $("#send-button").click();
+                }
+            });
+    
+            function scrollToBottom() {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $(".conversation-content").on("click", ".session", function(event) {
+                $('#loader').show()
+                const date = $(this).val();
+                console.log(date);
+                $.ajax({
+                    url: '{% url "session_chat" %}',  
+                    type: 'POST',
+                    data: {
+                        'date': date,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}' // Include CSRF token for security
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                          
+                            $("#chat-box").empty();
+                            
+                            // Parse the user history
+                            const userHistory = JSON.parse(response.user_history);
+                    
+                            // Append each message to the chat box
+                            userHistory.forEach(chat => {
+                                const userMessage = chat.fields.user_message;
+                                const botResponse = chat.fields.bot_response;
+                                const imageUrl = chat.fields.image_path;
+                                console.log(imageUrl);
+                    
+                                // Display user message
+                                $("#chat-box").append(`<div class="user-message">${userMessage}</div>`);
+                                if (imageUrl) {
+                                    $("#chat-box").append(`<div class="bot-message"><img src="http://127.0.0.1:8000/media/${imageUrl}" style="height:250px; width:250px;" alt="Generated Image"></div>`);
+                                } else {
+                                    $("#chat-box").append(`<div class="bot-message">${botResponse}</div>`);
+                                }
+                                
+                            });
+                    
+                            scrollToBottom(); // Scroll to the bottom of the chat box
+                        } else {
+                         
+                            console.error('Bot response error: ', response.message);
+                        }
+                    },
+                    
+                    error: function(xhr, status, error) {
+                        console.error('Ajax request failed: ', status, error);
+                    }
+                });
+            });
+            function scrollToBottom() {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        });
+    </script>
+    <script>
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function myFunction() {
+          document.getElementById("myDropdown").classList.toggle("show");
+        }
+        
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+          if (!event.target.matches('.useravatar')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        }
+        </script>
+    
+</body>
+
+</html>
