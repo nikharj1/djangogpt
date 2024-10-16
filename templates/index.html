@@ -87,6 +87,9 @@
                 {% endif %}
 
             </div>
+            <div class="typewriter">
+                <h1 id="text"></h1>
+            </div>
             <div class="chat-box" id="chat-box"></div>
             <div class="input-container">
                 <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
@@ -112,6 +115,7 @@
             });
     
             $("#send-button").click(function(event) {
+                $("#text").hide();
                 event.preventDefault(); // Prevent default form submission if inside a form
                 
                 const prompt = $("#user-input").val().trim();
@@ -258,6 +262,21 @@
             }
           }
         }
+        </script>
+        <script>
+            const text = "Hello, What can i help you with..?";
+            let index = 0;
+
+            function type() {
+                if (index < text.length) {
+                    document.getElementById("text").innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(type, 50); // Adjust the speed here (in milliseconds)
+                }
+            }
+
+            type();
+
         </script>
     
 </body>

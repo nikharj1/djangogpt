@@ -648,4 +648,22 @@ button {
 
   .show {display: flow;}
 
-  
+  .typewriter h1 {
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    border-right: 2px solid;
+    white-space: nowrap;
+    align-items: center;
+    overflow: hidden;
+    animation: blink-caret 0.45s step-end infinite;
+    display: flex;
+    justify-content: center;
+}
+
+
+@keyframes blink-caret {
+    50% {
+        border-color: transparent;
+    }
+}
