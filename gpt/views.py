@@ -263,7 +263,7 @@ def chat_with_bot(request):
                 if option == "Text to Image":
                     content = generate_text_to_image(request, prompt)
                     return JsonResponse({'success': True, 'message':content})
-                elif option == "Image text to text":
+                elif option == "Image Text to Text":
 
                     media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')  # Subfolder
                     os.makedirs(media_directory, exist_ok=True)
