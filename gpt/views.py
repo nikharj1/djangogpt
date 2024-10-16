@@ -252,48 +252,40 @@ def session_chat(request):
 
 @csrf_exempt
 def chat_with_bot(request):
-    if request.method == "POST":
-        prompt = request.POST.get('prompt', '')
-        file = request.FILES.get('file', None)
-    
-        if prompt != '' and file == None:
-            if "image" in prompt.lower() or "generate" in prompt.lower():
-                # image_prompt = prompt.replace("image", "").strip()
-                content = generate_text_to_image(request, prompt)
-                return JsonResponse({'success': True, 'message':content})
+    try:
+        if request.method == "POST":
+         
+            prompt = request.POST.get('prompt', '')
+            file = request.FILES.get('file', None)
+            option = request.POST.get('option')
+            
+            if option:
+                if option == "Text to Image":
+                    content = generate_text_to_image(request, prompt)
+                    return JsonResponse({'success': True, 'message':content})
+                elif option == "Image text to text":
+
+                    media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')  # Subfolder
+                    os.makedirs(media_directory, exist_ok=True)
+
+                    # Save the uploaded file
+                    file_path = os.path.join(media_directory, file.name)
+                    with open(file_path, 'wb+') as destination:
+                        for chunk in file.chunks():
+                            destination.write(chunk)
+
+                    # Process the image and generate a response
+                    content = image_text_to_text(request, prompt, file_path)
+                    return JsonResponse({'success': True, 'message':content})
+                else:
+                    content = generate_text(request, prompt)
+                    return JsonResponse({'success': True, 'message':content})
             else:
-                content = generate_text(request, prompt)
-                return JsonResponse({'success': True, 'message':content})
-        elif prompt == '' and file != None:
-            content = "No prompt only file : How may i help you with this..."
-            return JsonResponse({'success': True, 'message':content})
-        elif prompt != '' and file != None:
-
-            media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')  # Subfolder
-            os.makedirs(media_directory, exist_ok=True)
-
-            # Save the uploaded file
-            file_path = os.path.join(media_directory, file.name)
-            with open(file_path, 'wb+') as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
-
-            # Process the image and generate a response
-            content = image_text_to_text(request, prompt, file_path)
-            return JsonResponse({'success': True, 'message':content})
-        else:
-            return JsonResponse({'success': False, 'message':'Cant undertand..!! try again..!!'})
-        
+                return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
+            
+    except Exception as e:
+        print("GPT ERROR : ", e)
+        return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
 
 
 
-
-
-# clean_content = BeautifulSoup(content, 'html.parser').get_text()
-# lines = clean_content.split('\n')
-# formatted_lines = [line.strip() for line in lines if line.strip()]
-
-
-# formatted_content = '\n\n'.join(formatted_lines)
-
-# print(formatted_content)
