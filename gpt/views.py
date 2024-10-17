@@ -277,8 +277,8 @@ def chat_with_bot(request):
                     content = image_text_to_text(request, prompt, file_path)
                     return JsonResponse({'success': True, 'message':content})
                 else:
-                    content = generate_text(request, prompt)
-                    return JsonResponse({'success': True, 'message':content})
+                    # content = generate_text(request, prompt)
+                    return JsonResponse({'success': True, 'message':"content"})
             else:
                 return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
         else:
