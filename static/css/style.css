@@ -2,6 +2,7 @@ body {
     font-family: 'Poppins';
     margin: 0;
     padding: 0;
+    background-color: #1c1c1c;
 }
 
 .light-mode {
@@ -17,7 +18,7 @@ body {
 .sidebar {
     width: 300px;
     height: 100vh;
-    background-color: #171717;
+    background-color: #212020;
     position: fixed;
     top: 0;
     left: 0;
@@ -88,7 +89,7 @@ body {
 .sidebar-content {
     padding-top: 20px;
     transition: opacity 0.3s;
-    background-color: #0c0c0c;
+    background-color: #212020;
 }
 
 .sidebar.collapsed .sidebar-content {
@@ -196,6 +197,10 @@ body {
 }
 
 .dark-mode .user-message {
+    background-color: #2f2f2f;
+    color: #fff;
+}
+.dark-mode .bot-message {
     background-color: #2f2f2f;
     color: #fff;
 }
@@ -337,7 +342,7 @@ button {
 
 .user-message-container {
     display: flex;
-    align-items: center; /* Center the items vertically */
+    align-items: flex-end; /* Center the items vertically */
 }
 
 
@@ -356,7 +361,7 @@ button {
     margin-left: 10px; /* Push user message to the left */
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     flex-direction: row-reverse; /* Move user message to the right */
     font-weight: 400;
 }
@@ -374,8 +379,8 @@ button {
     width: 30px;
     height: 30px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-end;
+    align-items: flex-end;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
@@ -402,7 +407,12 @@ button {
 .bot-icon {
     width: 24px; /* Set width for the icon */
     height: 24px; /* Set height for the icon */
-    margin-top: 10px;
+   
+}
+.user-icon {
+    width: 24px; /* Set width for the icon */
+    height: 24px; /* Set height for the icon */
+    margin-bottom: 24px;
 }
 
 .bot-message::before {
@@ -726,17 +736,24 @@ button {
     border-radius: 35px;
     overflow: hidden;
     .form-input {
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 12px 20px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #6A7C92;
-      &:focus {
-        outline: none;
-      }
+        width: 80%;
+        background: none;
+        border: none;
+        padding: 8px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #6A7C92;
+        transition: height 0.3s ease; /* Smooth height transition */
+        overflow: hidden; /* Hide overflow */
+        max-height: 30px;
+        &:focus {
+            outline: none;
+        } /* Minimum height */
     }
+    
+
+    
+    
     .form-submit {
         color: #6A7C92;
         background-color: #000000;
@@ -814,7 +831,7 @@ button {
        height: 52px;
     }
     .radio-group {
-        display: inline-grid;
+        display: block;
         border: none;
        
         align-items: center;
@@ -828,3 +845,5 @@ button {
         margin-bottom: 0px;
     }
 }
+
+

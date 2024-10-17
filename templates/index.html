@@ -64,7 +64,7 @@
                     
                 </div>
                 <div class="logo-container">
-                    <h1 id="sidebar-toggle2">DilGPT&nbsp;
+                    <a href="https://xgenplus.com/" style="color:#000000; text-decoration:none;"><h1 id="sidebar-toggle2">DilGPT&nbsp;</a>
                       <i class="fa fa-caret-right"></i>
                       </h1> 
                     
@@ -103,16 +103,16 @@
                 <fieldset class="radio-group" id="option" style="margin-top: 10px;">
                     <label>
                         <input type="radio" name="inputOption" value="Text to Text" checked>
-                        Text to Text
+                        Text
                     </label>
                     <label>
                         <input type="radio" name="inputOption" value="Text to Image">
-                        Text to Image
+                        Image
                     </label>
                     {% if request.user.is_authenticated %}
                     <label>
                         <input type="radio" name="inputOption" value="Image Text to Text">
-                        Image Text to Text
+                        Image Text
                     </label>
                     {% endif %}
                 </fieldset>
@@ -126,7 +126,7 @@
                   <b>&uarr;</b>
                   </button> {% endcomment %}
                   <fieldset class="fieldInput">
-                    <input class="form-input" type="text" id="user-input"  name="prompt" placeholder="Enter Message...">
+                    <textarea class="form-input" type="text" id="user-input"  name="prompt" placeholder="Enter Message..."></textarea>
                     <button id="send-button" class="form-submit"><i id="send" class='far'>&#xf1d8;</i></button>
                   </fieldset>
                   {% if request.user.is_authenticated %}
@@ -179,7 +179,7 @@
                             <div class="user-message-container">
                                 <div class="user-message">${prompt}</div>
                                 <div class="user-icon">
-                                    <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg" alt="User Icon" style="height:24px; width:24px;" />
+                                    <img src="https://cdn3.iconfinder.com/data/icons/essential-rounded/64/Rounded-31-512.png" alt="User Icon" style="height:24px; width:24px;" />
                                 </div>
                             </div>
                         `);
@@ -188,13 +188,19 @@
                             <div class="user-message-container">
                                 <div class="user-message">${prompt}</div>
                                 <div class="user-icon">
-                                    <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg" alt="User Icon" style="height:24px; width:24px;" />
+                                    <img src="https://cdn3.iconfinder.com/data/icons/essential-rounded/64/Rounded-31-512.png" alt="User Icon" style="height:24px; width:24px;" />
                                 </div>
                             </div>
                         `);
                     }
                     
-                    $("#chat-box").append(`<div class="bot-message typing-indicator">...</div>`);
+                    $("#chat-box").append(`
+                    <div class="bot-message-container typing">
+                    <div class="bot-icon">
+                        <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
+                    </div>
+                    <div class="bot-message typing-indicator">...</div></div>`);
+                
                     scrollToBottom();
                 }
                 $("#user-input").val(""); // Clear input
@@ -220,6 +226,7 @@
                     success: function(response) {
                         if (response.success) {
                         
+                            $(".typing").remove();
                             $(".typing-indicator").remove();
                             
                             let messageContent;
@@ -243,8 +250,13 @@
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {
+                            $(".typing").remove();
                             $(".typing-indicator").remove();
-                            $("#chat-box").append(`<div class="bot-message error-message">${response.message}</div>`); // Using response.message for errors
+                            $("#chat-box").append(`<div class="bot-message-container">
+                                <div class="bot-icon">
+                                    <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
+                                </div>
+                            <div class="bot-message error-message">${response.message}</div> </div>`); // Using response.message for errors
                         }
                     },
                     error: function(xhr, status, error) {
@@ -308,7 +320,7 @@
                                 <div class="user-message-container">
                                     <div class="user-message">${userMessage}</div>
                                     <div class="user-icon">
-                                        <img src="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/profile-52e0dc.svg" alt="User Icon" style="height:24px; width:24px;" />
+                                        <img src="https://cdn3.iconfinder.com/data/icons/essential-rounded/64/Rounded-31-512.png" alt="User Icon" style="height:24px; width:24px;" />
                                         </div>
                                         </div>`
                                 );

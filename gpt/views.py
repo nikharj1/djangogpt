@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import base64
+import time
+import threading
 import json
 from .models import chat_history
 from django.conf import settings
@@ -195,7 +197,7 @@ def image_text_to_text(request, prompt, image):
 
 def authentication(request):
     if request.method == "POST":
-        username = request.POST.get('username', '')
+        username = request.POST.get('email', '')
         password = request.POST.get('password', '')
         if not User.objects.filter(username=username).exists():
             user = User.objects.filter(username=username)
@@ -205,7 +207,8 @@ def authentication(request):
                 return redirect('authentication')
             else:
                 user = User.objects.create_user(
-                    username=username
+                    username=username,
+                    email=username
                 )
                 user.set_password(password)
                 user.save()
@@ -250,6 +253,8 @@ def session_chat(request):
     
 
 
+
+
 @csrf_exempt
 def chat_with_bot(request):
     try:
@@ -257,41 +262,53 @@ def chat_with_bot(request):
             prompt = request.POST.get('prompt', '')
             file = request.FILES.get('file', None)
             option = request.POST.get('option')
-            
-            if option:
-                if option == "Text to Image":
-                    content = generate_text_to_image(request, prompt)
-                    return JsonResponse({'success': True, 'message':content})
-                elif option == "Image Text to Text":
 
-                    media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')  # Subfolder
-                    os.makedirs(media_directory, exist_ok=True)
-
-                    # Save the uploaded file
-                    file_path = os.path.join(media_directory, file.name)
-                    with open(file_path, 'wb+') as destination:
-                        for chunk in file.chunks():
-                            destination.write(chunk)
-
-                    # Process the image and generate a response
-                    content = image_text_to_text(request, prompt, file_path)
-                    return JsonResponse({'success': True, 'message':content})
+            # Define a function to process the request
+            def process_request(response):
+                if option:
+                    if option == "Text to Image":
+                        response['content'] = generate_text_to_image(request, prompt)
+                    elif option == "Image Text to Text":
+                        media_directory = os.path.join(settings.MEDIA_ROOT, 'User_Uploaded')
+                        os.makedirs(media_directory, exist_ok=True)
+                        file_path = os.path.join(media_directory, file.name)
+                        with open(file_path, 'wb+') as destination:
+                            for chunk in file.chunks():
+                                destination.write(chunk)
+                        response['content'] = image_text_to_text(request, prompt, file_path)
+                    else:
+                        
+                        response['content'] = generate_text(request, prompt)
                 else:
-                    content = generate_text(request, prompt)
-                    return JsonResponse({'success': True, 'message':content})
+                    response['error'] = 'Invalid option provided.'
+
+           
+            response = {}
+
+        
+            thread = threading.Thread(target=process_request, args=(response,))
+            thread.start()
+
+           
+            thread.join(timeout=30)
+
+           
+            if thread.is_alive():
+                return JsonResponse({'success': False, 'message': 'Connection timed out. Please try again later.'})
             else:
-                return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
+                # Return the processed response
+                if 'content' in response:
+                    return JsonResponse({'success': True, 'message': response['content']})
+                else:
+                    return JsonResponse({'success': False, 'message': response.get('error', 'Something went wrong.')})
+
         else:
-            return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
-            
+            return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
     except Exception as e:
         error_message = str(e)
         error_code = type(e).__name__
-        
-        # Log the error for debugging (optional, but recommended)
         print(f'Error! Code: {error_code}, Message: {error_message}')
-        
-        # Create a user-friendly message without exposing sensitive details
         user_friendly_message = 'Something went wrong. Please try again later.'
 
         return JsonResponse({
@@ -302,5 +319,6 @@ def chat_with_bot(request):
                 'code': error_code
             }
         })
+
 
 

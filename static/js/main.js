@@ -75,7 +75,7 @@ $(document).ready(function() {
             $('#mode-icon').html('<i class="fas fa-moon"></i>'); // Dark mode icon
         } else {
             body.removeClass('dark-mode').addClass('light-mode');
-            $('#mode-icon').html('<i class="fas fa-sun"></i>'); // Light mode icon
+            $('#mode-icon').html('<i class="fas fa-adjust"></i>'); // Settings icon
         }
     }
 

@@ -12,7 +12,7 @@
 <body>
     <div class="main">
         <h1>DilGPT</h1>
-        <h3>Enter your login credentials</h3>
+        
         {% if messages %}
             <div class="alert alert-primary" role="alert">
                 {% for message in messages %}
@@ -22,9 +22,14 @@
             {% endif %}
         <form action="{% url "authentication" %}" method="post"> {% csrf_token %}
             <label for="first">
-                Username:
+                Email:
             </label>
-            <input type="text" id="first" name="username" placeholder="Enter your Username" required>
+            <input type="email" id="first" name="email" placeholder="Enter your email" required>
+
+            {% comment %} <label for="email">
+                email:
+            </label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required> {% endcomment %}
 
             <label for="password">
                 Password:
