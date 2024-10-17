@@ -20,7 +20,7 @@
     <div id="overlay">
         <div id="loader"></div>
     </div>
-    
+    {% if request.user.is_authenticated %}
     <div class="sidebar collapsed">
         
         <div class="tooltip">
@@ -31,6 +31,7 @@
               <i class="fas fa-chevron-right" ></i>
               </button>
         </div>
+        
         <div class="sidebar-content">
             <a href="{% url "home" %}"><button id="new-conversation-btn pb-5" style=" margin-left: 15px ! important; border: 1px solid ! important;">
               New Chat
@@ -56,19 +57,21 @@
             {% endif %}
         </div>
     </div>
+    {% endif %}
     <div class="chat-container light-mode">
         <div class="chat-content">
             <div class="chat-header">
+                <div class="logo-container" id="newchat">
+                    
+                    <a href="{% url "home" %}"><i class="fas fa-edit" id="newchat" style="font-size:25px; color:#0c0c0c;"></i></a>
+                      
+                    
+                </div>
                 <div class="logo-container">
-                    <h1>DilGPT&nbsp;
-                      <i class="fa fa-caret-down"></i>
+                    <h1 id="sidebar-toggle2">DilGPT&nbsp;
+                      <i class="fa fa-caret-right"></i>
                       </h1> 
-                      <h2><label for="language">Select a Option</label></h2>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <select name="language" id="language">
-                    <option id="txt" value="Text to Text">Text to Text</option>
-                    <option id="txi" value="Text to Image">Text to Image</option>
-                    <option id="itti" value="Image Text to Text" {% if request.user.is_authenticated %} {% else %} disabled {% endif %}>Image Text to Text {% if request.user.is_authenticated %} {% else %}(Login to select){% endif %}</option>
-                    </select>
+                    
                 </div>
                 {% if request.user.is_authenticated %}
                 <div class="mode-toggle">
@@ -102,12 +105,25 @@
             </div>
             <div class="chat-box" id="chat-box"></div>
             <div class="input-container">
+                <fieldset class="radio-group" id="option" style="margin-top: 10px;">
+                    <label>
+                        <input type="radio" name="inputOption" value="Text to Text" checked>
+                        Text to Text
+                    </label>
+                    <label>
+                        <input type="radio" name="inputOption" value="Text to Image">
+                        Text to Image
+                    </label>
+                    {% if request.user.is_authenticated %}
+                    <label>
+                        <input type="radio" name="inputOption" value="Image Text to Text">
+                        Image Text to Text
+                    </label>
+                    {% endif %}
+                </fieldset>
                 
-                {% if request.user.is_authenticated %}
-                <span id="file-name" style="margin-left: 10px; font-size: 14px; color: #555; display: flex; align-items: center; justify-content: center;"></span>
-                <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px;"></i>
-            <input name="file" id="fileinput" type="file" style="display: none;">
-            {% endif %}
+                
+           
                 {% comment %} <input type="text" id="user-input"  name="prompt"
                        placeholder="Type your message...">
                 <button id="send-button">
@@ -116,8 +132,13 @@
                   </button> {% endcomment %}
                   <fieldset class="fieldInput">
                     <input class="form-input" type="text" id="user-input"  name="prompt" placeholder="Enter Message...">
-                    <button id="send-button" class="form-submit"><i style='font-size:24px; margin-bottom:15px;' class='far'>&#xf1d8;</i></button>
+                    <button id="send-button" class="form-submit"><i id="send" class='far'>&#xf1d8;</i></button>
                   </fieldset>
+                  {% if request.user.is_authenticated %}
+                  <span id="file-name" style="font-size: 14px; color: #555; "></span>
+                <i class="fas fa-file-upload" id="upload-icon" style="cursor: pointer; font-size:30px; padding:13px; top:-54px;position: relative;"></i>
+            <input name="file" id="fileinput" type="file" style="display: none;">
+            {% endif %}
             </div>
         </div>
     </div>
@@ -169,7 +190,8 @@
                 $("#user-input").val(""); // Clear input
                 $("#fileinput").val(""); // Corrected: Clear the file input, not #fileinputs
                 $("#file-name").text(""); // Assuming there's an element for file name
-                var selectedValue = $("#language").val();
+                
+                const selectedValue = $("input[name='inputOption']:checked").val();
                 const formData = new FormData();
                 formData.append('prompt', prompt);
                 formData.append('option',selectedValue)
@@ -228,6 +250,8 @@
     <script>
         $(document).ready(function() {
             $(".conversation-content").on("click", ".session", function(event) {
+                $("#text").hide();
+                $(".input-container").css("bottom", "0px");
                 $('#loader').show()
                 const date = $(this).val();
               
@@ -240,7 +264,7 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                          
+                            
                             $("#chat-box").empty();
                             
                             // Parse the user history
@@ -308,8 +332,10 @@
 
             function type() {
                 if (index < text.length) {
-                    $(".input-container").css("bottom", "290px"); 
+                    $(".input-container").css("bottom", "150px");
+                  
                     document.getElementById("text").innerHTML += text.charAt(index);
+                    
                     index++;
                     setTimeout(type, 35); // Adjust the speed here (in milliseconds)
                 } 
@@ -321,31 +347,42 @@
         </script>
         <script>
             $(document).ready(function() {
-                $("#language").change(function() {
+                // Function to handle background blink and overlay
+                function showOverlay() {
                     // Blink the screen
                     $("body").css("background-color", "#000000"); // Change to blink color
                     setTimeout(function() {
                         $("body").css("background-color", ""); // Revert back to original
                     }, 100); // Blink duration
-            
+        
                     // Show overlay and loader
+                    $("#overlay").show();
+                    // Remove overlay after 500 milliseconds
                     setTimeout(function() {
-                        $("#overlay").show();
-                        // Remove overlay after 500 milliseconds
-                        setTimeout(function() {
-                            $("#overlay").hide();
-                        }, 500);
-                    }, 100);
-            
-                    // Check the selected value
+                        $("#overlay").hide();
+                    }, 500);
+                }
+        
+                // Language change event
+                
+        
+                // Radio button change event
+                $("input[name='inputOption']").change(function() {
+                    showOverlay();
+        
+                    // Check the selected radio button value
                     if ($(this).val() === "Image Text to Text") {
                         $("#upload-icon").show();
                     } else {
                         $("#upload-icon").hide();
+                        $("#fileinput").val(""); // Corrected: Clear the file input, not #fileinputs
+                        $("#file-name").text("");
+
                     }
                 });
             });
-            </script>
+        </script>
+        
             
           
                    

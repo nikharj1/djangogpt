@@ -22,12 +22,12 @@ body {
     top: 0;
     left: 0;
     z-index: 1;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: width 0.2s;
 }
 
 .light-mode .sidebar {
-    background-color: #171717;
+    background-color:transparent;
 }
 
 .sidebar.collapsed {
@@ -88,6 +88,7 @@ body {
 .sidebar-content {
     padding-top: 20px;
     transition: opacity 0.3s;
+    background-color: #0c0c0c;
 }
 
 .sidebar.collapsed .sidebar-content {
@@ -131,8 +132,12 @@ body {
     background-color: #242020;
 }
 
+#newchat {
+    display: none;
+}
+
 .chat-container {
-    width: 70%;
+    width: 100%;
     height: 100vh;
     border-radius: 0;
     box-shadow: none;
@@ -270,14 +275,24 @@ input:checked+.slider:before {
 }
 
 .input-container {
-    display: flex;
+    display: grid;
+    flex-direction: column; /* Stack elements vertically */
     padding: 15px;
-    position: relative; /* or absolute, depending on your layout */
-    bottom: 0; /* Adjust based on your design */
-    transition: bottom 0.3s; /* Optional: for a smooth transition */
+    position: relative; /* Allows for absolute positioning of child elements */
+    align-items: center; /* Ensure children take full width */
     justify-content: center;
-    align-items: center;
 }
+
+.radio-group {
+    display: flex;
+    margin-top: 10px; /* Add some space above */
+    border: none;
+    width: 100%;
+    margin-left: 22px;
+    align-items: center;
+    justify-self: center;
+}
+
 
 input[type="text"] {
     flex: 1;
@@ -319,6 +334,7 @@ button {
 #file {
     display: none;
 }
+
 
 
 .user-message {
@@ -402,6 +418,11 @@ button {
 
 
 /* loginform  */
+
+#send {
+    font-size:24px; 
+    margin-bottom:15px;
+}
 
 
 
@@ -652,10 +673,15 @@ button {
 
   .show {display: flow;}
 
+  .typewriter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   .typewriter h1 {
     position: absolute;
     top: 30%;
-    left: 37%;
     border-right: 2px solid;
     white-space: nowrap;
     align-items: center;
@@ -663,6 +689,7 @@ button {
     animation: blink-caret 0.45s step-end infinite;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 @keyframes blink-caret {
@@ -681,12 +708,12 @@ button {
     border-radius: 35px;
     overflow: hidden;
     .form-input {
-      width: 90%;
+      width: 100%;
       background: none;
       border: none;
       padding: 12px 20px;
       font-size: 18px;
-      font-weight: 400;
+      font-weight: 600;
       color: #6A7C92;
       &:focus {
         outline: none;
@@ -706,6 +733,7 @@ button {
         margin: 6px;
     }
   } 
+
 
 
   select{
@@ -751,4 +779,34 @@ button {
 
 #upload-icon {
     display: none;
+}
+
+@media only screen and (max-width: 768px) {
+    .sidebar {
+        width: 35%; /* Full width for mobile */
+    }
+
+    .chat-container {
+        width: 100%; /* Full width for chat */
+        margin-left: 0; /* Reset margin */
+    }
+
+    .fieldInput {
+       width: 350px;
+       height: 52px;
+    }
+    .radio-group {
+        display: inline-grid;
+        border: none;
+       
+        align-items: center;
+        justify-content: center;
+    }
+    #newchat {
+        display: block;
+    }
+    #send {
+        font-size:24px; 
+        margin-bottom: 0px;
+    }
 }

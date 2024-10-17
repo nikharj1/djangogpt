@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('.conversation-content');
     const sidebarToggle = 
             document.getElementById('sidebar-toggle');
+    const sidebarToggle2 = 
+            document.getElementById('sidebar-toggle2');
+            
     const chatContainer = 
             document.querySelector('.chat-container');
     
@@ -31,8 +34,21 @@ document.addEventListener('DOMContentLoaded', function () {
             chatContainer.style.width = '96%';
             chatContainer.style.marginLeft = '3%';
         } else {
-            chatContainer.style.width = 'calc(100% - 300px)';
-            chatContainer.style.marginLeft = '300px';
+            
+            chatContainer.style.marginLeft = '225px';
+        }
+    });
+    sidebarToggle2.addEventListener('click', function () {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('collapsed');
+
+        if (sidebar.classList.contains('collapsed')) {
+            chatContainer.style.width = '96%';
+            chatContainer.style.marginLeft = '3%';
+        } else {
+            
+            chatContainer.style.marginLeft = '225px';
+            sidebar.style.display = "block";
         }
     });
     newConversationBtn.addEventListener('click', function () {

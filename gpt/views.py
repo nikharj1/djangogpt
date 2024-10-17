@@ -254,7 +254,6 @@ def session_chat(request):
 def chat_with_bot(request):
     try:
         if request.method == "POST":
-         
             prompt = request.POST.get('prompt', '')
             file = request.FILES.get('file', None)
             option = request.POST.get('option')
