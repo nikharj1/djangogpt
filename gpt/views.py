@@ -281,10 +281,26 @@ def chat_with_bot(request):
                     return JsonResponse({'success': True, 'message':content})
             else:
                 return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
+        else:
+            return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
             
     except Exception as e:
-        print("GPT ERROR : ", e)
-        return JsonResponse({'success': False, 'message':'Something went wrong..!! try again..!!'})
+        error_message = str(e)
+        error_code = type(e).__name__
+        
+        # Log the error for debugging (optional, but recommended)
+        print(f'Error! Code: {error_code}, Message: {error_message}')
+        
+        # Create a user-friendly message without exposing sensitive details
+        user_friendly_message = 'Something went wrong. Please try again later.'
 
+        return JsonResponse({
+            'success': False,
+            'message': user_friendly_message,
+            'error_details': {
+                'message': error_message,
+                'code': error_code
+            }
+        })
 
 

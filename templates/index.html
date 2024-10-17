@@ -50,11 +50,7 @@
                         </p>
                     </div>
                 </div>
-            {% if request.user.is_authenticated %}
-            <div class="logout">
-            <a href="{% url "handlelogout" %}"><i style="font-size:24px" class="fa">&#xf08b;</i>&nbsp;Logout</a>
-            </div>
-            {% endif %}
+            
         </div>
     </div>
     {% endif %}
@@ -85,9 +81,8 @@
                     <div class="dropdown">
                       <img onclick="myFunction()" class="useravatar" src="https://cdn3.iconfinder.com/data/icons/essential-rounded/64/Rounded-31-512.png" style="width:30px; margin-right:25px; height:30px; border-radius:15px;" alt="User Avatar">
                         <div id="myDropdown" class="dropdown-content">
-                          <a href="#home">Home</a>
-                          <a href="#about">About</a>
-                          <a href="#contact">Contact</a>
+                            <a href="{% url "handlelogout" %}"><i style="font-size:24px" class="fa">&#xf08b;</i>&nbsp;Logout</a>
+                          
                         </div>
                       </div>
                 </div>
@@ -226,7 +221,8 @@
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {
-                            console.error('Bot response error: ');
+                            $(".typing-indicator").remove();
+                            $("#chat-box").append(`<div class="bot-message error-message">${response.message}</div>`); // Using response.message for errors
                         }
                     },
                     error: function(xhr, status, error) {
@@ -250,6 +246,13 @@
     <script>
         $(document).ready(function() {
             $(".conversation-content").on("click", ".session", function(event) {
+                const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.add('collapsed'); // Add 'collapsed' class to collapse it
+                const chatContainer = document.querySelector('.chat-container'); // Ensure chatContainer is defined
+
+                chatContainer.style.width = '96%';
+                chatContainer.style.marginLeft = '3%';
+                sidebar.style.display = 'none'; // Hides the sidebar
                 $("#text").hide();
                 $(".input-container").css("bottom", "0px");
                 $('#loader').show()
