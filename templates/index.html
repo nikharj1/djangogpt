@@ -28,7 +28,7 @@
               Open Sidebar
               </span>
             <button id="sidebar-toggle" style="border:none;">
-              <i class="fas fa-chevron-right" ></i>
+              
               </button>
         </div>
         
@@ -64,7 +64,7 @@
                     
                 </div>
                 <div class="logo-container">
-                    <a href="https://xgenplus.com/" style="color:#000000; text-decoration:none;"><h1 id="sidebar-toggle2">DilGPT&nbsp;</a>
+                    <a id="logo" href="https://xgenplus.com/"><h1 id="sidebar-toggle2">DilGPT&nbsp;</a>
                       <i class="fa fa-caret-right"></i>
                       </h1> 
                     
@@ -119,12 +119,6 @@
                 
                 
            
-                {% comment %} <input type="text" id="user-input"  name="prompt"
-                       placeholder="Type your message...">
-                <button id="send-button">
-                    
-                  <b>&uarr;</b>
-                  </button> {% endcomment %}
                   <fieldset class="fieldInput">
                     <textarea class="form-input" type="text" id="user-input"  name="prompt" placeholder="Enter Message..."></textarea>
                     <button id="send-button" class="form-submit"><i id="send" class='far'>&#xf1d8;</i></button>
@@ -162,6 +156,8 @@
                 return escapedContent.replace(/\n/g, "<br>");
             }
             $("#send-button").click(function(event) {
+                $("#user-input").addClass("not-allowed").attr("readonly", true);
+            
                 $("#text").hide();
                 $(".input-container").css("bottom", "0px");
                 event.preventDefault(); // Prevent default form submission if inside a form
@@ -225,7 +221,7 @@
                     contentType: false, // Set contentType to false for FormData
                     success: function(response) {
                         if (response.success) {
-                        
+                             $("#user-input").removeClass("not-allowed").attr("readonly", false);
                             $(".typing").remove();
                             $(".typing-indicator").remove();
                             
@@ -250,6 +246,7 @@
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {
+                             $("#user-input").removeClass("not-allowed").attr("readonly", false);
                             $(".typing").remove();
                             $(".typing-indicator").remove();
                             $("#chat-box").append(`<div class="bot-message-container">
@@ -260,6 +257,7 @@
                         }
                     },
                     error: function(xhr, status, error) {
+                         $("#user-input").removeClass("not-allowed").attr("readonly", false);
                         console.error('Ajax request failed: ');
                     }
                 });

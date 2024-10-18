@@ -173,13 +173,13 @@ def image_text_to_text(request, prompt, image):
         response = requests.post(url, headers=headers, data=payload, verify=False)
         if response.status_code == 200:
             data = json.loads(response.text)
-            # chat_save = chat_history.objects.create(
-            #     user_message=prompt,
-            #     bot_response="Generated Image",
-            #     input_image =f"User_Uploaded/{file_name}",
-            #     username=request.user.username
-            # )
-            # chat_save.save()
+            chat_save = chat_history.objects.create(
+                user_message=prompt,
+                bot_response=data,
+                input_image =f"User_Uploaded/{file_name}",
+                username=request.user.username
+            )
+            chat_save.save()
         else:
             content = "i can't understand please try again"
         return content
@@ -263,7 +263,7 @@ def chat_with_bot(request):
             file = request.FILES.get('file', None)
             option = request.POST.get('option')
 
-            # Define a function to process the request
+            
             def process_request(response):
                 if option:
                     if option == "Text to Image":
@@ -277,7 +277,6 @@ def chat_with_bot(request):
                                 destination.write(chunk)
                         response['content'] = image_text_to_text(request, prompt, file_path)
                     else:
-                        
                         response['content'] = generate_text(request, prompt)
                 else:
                     response['error'] = 'Invalid option provided.'

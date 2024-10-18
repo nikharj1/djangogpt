@@ -59,9 +59,6 @@ body {
 }
 
 
-.light-mode #sidebar-toggle {
-    color: #fff;
-}
 
 #sidebar-toggle {
     background-color: transparent;
@@ -168,7 +165,7 @@ body {
 }
 
 .chat-header {
-    margin-left: 2%;
+    margin-left: 6%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -177,14 +174,26 @@ body {
     background-color: #171717;
 }
 
-.light-mode h1 {
+.light-mode h1  {
     color: black;
 }
 
-.dark-mode h1 {
+.dark-mode h1  {
     background-color: #1e1e1e;
     color: #f5f5f5;
 }
+
+.light-mode #logo {
+    color: black;
+    text-decoration: none;
+}
+
+.dark-mode #logo {
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    text-decoration: none;
+}
+
 
 .light-mode .chat-header {
     background-color: #f5f5f5;
@@ -815,6 +824,13 @@ button {
 #upload-icon {
     display: none;
 }
+
+
+#user-input.not-allowed {
+    cursor: not-allowed;
+  }
+
+
 
 @media only screen and (max-width: 768px) {
     .sidebar {
