@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
+import html2text
+
 from bs4 import BeautifulSoup
 from django.views.decorators.csrf import csrf_exempt
 import requests
@@ -17,6 +19,8 @@ from django.db.models.functions import TruncDate
 from datetime import datetime
 from django.core.serializers import serialize
 import os
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from huggingface_hub import InferenceClient
 client = InferenceClient(api_key=settings.API_KEY_HUGGINGFACE)
 
@@ -279,6 +283,7 @@ def chat_with_bot(request):
                                 destination.write(chunk)
                         response['content'] = image_text_to_text(request, prompt, file_path)
                     else:
+                        
                         response['content'] = generate_text(request, prompt)
                         
 

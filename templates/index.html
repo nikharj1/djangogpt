@@ -143,7 +143,20 @@
                 const fileName = $(this).val().split('\\').pop(); 
                 $("#file-name").text(fileName || ''); 
             });
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
             
+            function formatContent(content) {
+                // Escape HTML tags and convert newlines to <br>
+                const escapedContent = escapeHtml(content);
+                return escapedContent.replace(/\n/g, "<br>");
+            }
             $("#send-button").click(function(event) {
                 $("#user-input").addClass("not-allowed").attr("readonly", true);
             
@@ -210,71 +223,65 @@
                     contentType: false, // Set contentType to false for FormData
                     success: function(response) {
                         if (response.success) {
-                             $("#user-input").removeClass("not-allowed").attr("readonly", false);
+                            $("#user-input").removeClass("not-allowed").attr("readonly", false);
                             $(".typing").remove();
                             $(".typing-indicator").remove();
-                            
-                            let messageContent;
-                            
+                    
                             if (response.message.includes(".png")) {
                                 const imageUrl = `http://127.0.0.1:8000/media/Bot_response/${response.message}`;
                                 const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
                                 $("#chat-box").append(imageHtml);
                             } else {
-                                messageContent = response.message;
                                 $("#chat-box").append(`
-                                <div class="bot-message-container">
-                                <div class="bot-icon">
-                                    <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
-                                </div>
-                                <div class="bot-message"></div>
-                                </div>
+                                    <div class="bot-message-container">
+                                        <div class="bot-icon">
+                                            <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="Bot Icon" style="height:24px; width:24px; margin-top:10px;" />
+                                        </div>
+                                        <div class="bot-message"></div>
+                                    </div>
                                 `);
-                                
-                            }
-                            let index = 0;
-                            const text = messageContent; // Store the content to be typed out
-                            const typingSpeed = text.length > 100 ? 15 : 20; // Set speed based on text length
-
-                            function type() {
-                                const regex = /(<.*?>)/; // Regex to match HTML tags
-                                const parts = text.split(regex); // Split text by HTML tags
-                            
-                                // Helper function to handle typing
-                                function typePart(index) {
-                                    if (index < parts.length) {
-                                        const part = parts[index];
-                                        const botMessageElement = document.getElementsByClassName("bot-message");
-                                        const currentMessage = botMessageElement[botMessageElement.length - 1];
-                            
-                                        if (part.match(regex)) {
-                                            // It's an HTML tag, just append it
-                                            currentMessage.innerHTML += part;
-                                            typePart(index + 1); // Move to the next part
-                                        } else {
-                                            // It's plain text, type it out
-                                            let charIndex = 0;
-                                            function typeText() {
-                                                if (charIndex < part.length) {
-                                                    // Preserve formatting (line breaks, spaces, etc.)
-                                                    const char = part.charAt(charIndex);
-                                                    currentMessage.innerHTML += char === '\n' ? '<br>' : char; // Convert newlines to <br>
-                                                    charIndex++;
-                                                    setTimeout(typeText, typingSpeed); // Use the dynamic typing speed
-                                                } else {
-                                                    typePart(index + 1); // Move to the next part after finishing current
+                                function unescapeHtml(escaped) {
+                                    const textArea = document.createElement("textarea");
+                                    textArea.innerHTML = escaped;
+                                    return textArea.value;
+                                }
+                                const unescapedMessage = unescapeHtml(formatContent(response.message));
+                                console.log(unescapedMessage);
+                                const botMessageElement = document.getElementsByClassName("bot-message")[0];
+                    
+                                function typewriterEffect(element, text, delay = 20) {
+                                    let index = 0;
+                    
+                                    function type() {
+                                        if (index < text.length) {
+                                            // Check for HTML tags
+                                            if (text[index] === '<') {
+                                                // Find the closing tag
+                                                const closingTagIndex = text.indexOf('>', index);
+                                                if (closingTagIndex !== -1) {
+                                                    // Get the entire tag
+                                                    const tag = text.substring(index, closingTagIndex + 1);
+                                                    element.innerHTML += tag; // Directly append the tag
+                                                    index = closingTagIndex + 1; // Move index past the tag
+                                                    setTimeout(type, delay);
+                                                    return; // Exit to continue typing
                                                 }
                                             }
-                                            typeText(); // Start typing this part
+                    
+                                            // Append the next character if not a tag
+                                            element.innerHTML += text.charAt(index);
+                                            index++;
+                                            setTimeout(type, delay);
                                         }
                                     }
+                    
+                                    type();
                                 }
-                            
-                                typePart(0); // Start typing from the first part
+                    
+                                // Start typing the unescaped message
+                                typewriterEffect(botMessageElement, unescapedMessage);
+                                
                             }
-                            
-                            type();
-                            // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {
                              $("#user-input").removeClass("not-allowed").attr("readonly", false);
@@ -392,13 +399,9 @@
         });
     </script>
     <script>
-        /* When the user clicks on the button, 
-        toggle between hiding and showing the dropdown content */
         function myFunction() {
           document.getElementById("myDropdown").classList.toggle("show");
         }
-        
-        // Close the dropdown if the user clicks outside of it
         window.onclick = function(event) {
           if (!event.target.matches('.useravatar')) {
             var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -415,21 +418,16 @@
         <script>
             const text = "What can I help with?";
             let index = 0;
-
             function type() {
                 if (index < text.length) {
                     $(".input-container").css("bottom", "150px");
                     $("#text").css("border", "none");
                     document.getElementById("text").innerHTML += text.charAt(index);
-                    
                     index++;
                     setTimeout(type, 35); // Adjust the speed here (in milliseconds)
                 } 
             }
-
             type();
-
-
         </script>
         <script>
             $(document).ready(function() {
@@ -449,10 +447,6 @@
                     }, 500);
                 }
         
-                // Language change event
-                
-        
-                // Radio button change event
                 $("input[name='inputOption']").change(function() {
                     showOverlay();
         
@@ -468,28 +462,7 @@
                 });
             });
         </script>
-        
-            
-          
-                   
-    
+  
 </body>
 
 </html>
-
-
-
-
-{% comment %} let index = 0;
-                                const text = messageContent; // Store the content to be typed out
-                                const typingSpeed = text.length > 100 ? 20 : 30; // Set speed based on text length
-
-                                function type() {
-                                    if (index < text.length) {
-                                        document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += text.charAt(index);
-                                        index++;
-                                        setTimeout(type, typingSpeed); // Use the dynamic typing speed
-                                    } 
-                                }
-
-                                type(); {% endcomment %}
