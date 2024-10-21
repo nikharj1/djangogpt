@@ -244,16 +244,21 @@
                                 function typePart(index) {
                                     if (index < parts.length) {
                                         const part = parts[index];
+                                        const botMessageElement = document.getElementsByClassName("bot-message");
+                                        const currentMessage = botMessageElement[botMessageElement.length - 1];
+                            
                                         if (part.match(regex)) {
                                             // It's an HTML tag, just append it
-                                            document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += part;
+                                            currentMessage.innerHTML += part;
                                             typePart(index + 1); // Move to the next part
                                         } else {
                                             // It's plain text, type it out
                                             let charIndex = 0;
                                             function typeText() {
                                                 if (charIndex < part.length) {
-                                                    document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += part.charAt(charIndex);
+                                                    // Preserve formatting (line breaks, spaces, etc.)
+                                                    const char = part.charAt(charIndex);
+                                                    currentMessage.innerHTML += char === '\n' ? '<br>' : char; // Convert newlines to <br>
                                                     charIndex++;
                                                     setTimeout(typeText, typingSpeed); // Use the dynamic typing speed
                                                 } else {
@@ -268,9 +273,7 @@
                                 typePart(0); // Start typing from the first part
                             }
                             
-
                             type();
-                            
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
                         } else {

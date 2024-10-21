@@ -65,7 +65,6 @@ def generate_text(request, prompt):
         content = data['choices'][0]['message']['content']
         clean_content = re.sub(r'<[^>]+>', '', content)
     
-        print(clean_content)
         
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
