@@ -143,18 +143,7 @@
                 const fileName = $(this).val().split('\\').pop(); 
                 $("#file-name").text(fileName || ''); 
             });
-            function escapeHtml(unsafe) {
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;");
-            }
             
-            function formatContent(content) {
-                // Escape HTML tags and convert newlines to <br>
-                const escapedContent = escapeHtml(content);
-                return escapedContent.replace(/\n/g, "<br>");
-            }
             $("#send-button").click(function(event) {
                 $("#user-input").addClass("not-allowed").attr("readonly", true);
             
@@ -226,22 +215,61 @@
                             $(".typing-indicator").remove();
                             
                             let messageContent;
-                    
+                            s
                             if (response.message.includes(".png")) {
                                 const imageUrl = `http://127.0.0.1:8000/media/Bot_response/${response.message}`;
                                 const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
                                 $("#chat-box").append(imageHtml);
                             } else {
-                                messageContent = formatContent(response.message);
+                                messageContent = response.message;
                                 $("#chat-box").append(`
                                 <div class="bot-message-container">
                                 <div class="bot-icon">
                                     <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
                                 </div>
-                                <div class="bot-message">${messageContent}</div>
+                                <div class="bot-message"></div>
                                 </div>
                                 `);
+                                
                             }
+                            let index = 0;
+                            const text = messageContent; // Store the content to be typed out
+                            const typingSpeed = text.length > 100 ? 15 : 20; // Set speed based on text length
+
+                            function type() {
+                                const regex = /(<.*?>)/; // Regex to match HTML tags
+                                const parts = text.split(regex); // Split text by HTML tags
+                            
+                                // Helper function to handle typing
+                                function typePart(index) {
+                                    if (index < parts.length) {
+                                        const part = parts[index];
+                                        if (part.match(regex)) {
+                                            // It's an HTML tag, just append it
+                                            document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += part;
+                                            typePart(index + 1); // Move to the next part
+                                        } else {
+                                            // It's plain text, type it out
+                                            let charIndex = 0;
+                                            function typeText() {
+                                                if (charIndex < part.length) {
+                                                    document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += part.charAt(charIndex);
+                                                    charIndex++;
+                                                    setTimeout(typeText, typingSpeed); // Use the dynamic typing speed
+                                                } else {
+                                                    typePart(index + 1); // Move to the next part after finishing current
+                                                }
+                                            }
+                                            typeText(); // Start typing this part
+                                        }
+                                    }
+                                }
+                            
+                                typePart(0); // Start typing from the first part
+                            }
+                            
+
+                            type();
                             
                             // Scroll to the bottom of the chat box
                             scrollToBottom();
@@ -449,3 +477,16 @@
 
 
 
+{% comment %} let index = 0;
+                                const text = messageContent; // Store the content to be typed out
+                                const typingSpeed = text.length > 100 ? 20 : 30; // Set speed based on text length
+
+                                function type() {
+                                    if (index < text.length) {
+                                        document.getElementsByClassName("bot-message")[document.getElementsByClassName("bot-message").length - 1].innerHTML += text.charAt(index);
+                                        index++;
+                                        setTimeout(type, typingSpeed); // Use the dynamic typing speed
+                                    } 
+                                }
+
+                                type(); {% endcomment %}

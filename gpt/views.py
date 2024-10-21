@@ -10,6 +10,7 @@ import json
 from .models import chat_history
 from django.conf import settings
 from django.contrib import messages
+import re
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models.functions import TruncDate
@@ -62,14 +63,17 @@ def generate_text(request, prompt):
         data = json.loads(response.text)
         
         content = data['choices'][0]['message']['content']
+        clean_content = re.sub(r'<[^>]+>', '', content)
+    
+        print(clean_content)
         
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
     else:
-        content = "i can't understand please try again"
+        clean_content = "i can't understand please try again"
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
-    return content
+    return clean_content
 
 def generate_text_to_image(request, prompt):
     try:

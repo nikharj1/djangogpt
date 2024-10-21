@@ -400,6 +400,11 @@ button {
     margin-bottom: 10px; /* Space between messages */
 }
 
+
+
+
+
+
 .bot-message {
     max-width: 75%;
     color: #000000;
@@ -407,10 +412,10 @@ button {
     font-weight: 400;
     padding: 10px;
     border-radius: 20px;
-    margin-left: 8px; /* Space between icon and message */
+    margin-left: 8px; 
     position: relative;
     display: flex;
-    flex-direction: column; /* Adjust for button placement if needed */
+    flex-direction: column; 
 }
 
 .bot-icon {
@@ -425,6 +430,7 @@ button {
 }
 
 .bot-message::before {
+    white-space: pre;
     font-weight: 400;
     position: absolute;
     bottom: -17px;
@@ -728,6 +734,8 @@ button {
     justify-content: center;
     align-items: center;
 }
+
+
 
 @keyframes blink-caret {
     50% {
