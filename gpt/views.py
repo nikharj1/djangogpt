@@ -286,7 +286,6 @@ def chat_with_bot(request):
                         
                         response['content'] = generate_text(request, prompt)
                         
-
                 else:
                     response['error'] = 'Invalid option provided.'
 
