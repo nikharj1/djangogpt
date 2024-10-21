@@ -215,7 +215,7 @@
                             $(".typing-indicator").remove();
                             
                             let messageContent;
-                            s
+                            
                             if (response.message.includes(".png")) {
                                 const imageUrl = `http://127.0.0.1:8000/media/Bot_response/${response.message}`;
                                 const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;

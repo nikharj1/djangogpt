@@ -84,7 +84,7 @@ DATABASES = {
         "NAME": "Test",  # Replace with your database name
         "USER": "postgres",   # Replace with your database user
         "PASSWORD": "1234",     # Replace with your database password
-        "HOST": "100.20.92.101",             # Set to your database host (e.g., 'localhost' or IP address)
+        "HOST": "localhost",             # Set to your database host (e.g., 'localhost' or IP address)
         "PORT": "5432",                  # Default port for PostgreSQL
     }
 }

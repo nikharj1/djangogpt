@@ -63,16 +63,15 @@ def generate_text(request, prompt):
         data = json.loads(response.text)
         
         content = data['choices'][0]['message']['content']
-        clean_content = re.sub(r'<[^>]+>', '', content)
     
         
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
     else:
-        clean_content = "i can't understand please try again"
+        content = "i can't understand please try again"
         chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
         chat_save.save()
-    return clean_content
+    return content
 
 def generate_text_to_image(request, prompt):
     try:
@@ -281,6 +280,8 @@ def chat_with_bot(request):
                         response['content'] = image_text_to_text(request, prompt, file_path)
                     else:
                         response['content'] = generate_text(request, prompt)
+                        
+
                 else:
                     response['error'] = 'Invalid option provided.'
 
