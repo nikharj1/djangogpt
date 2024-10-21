@@ -250,6 +250,11 @@
                                 const botMessageElement = document.getElementsByClassName("bot-message")[0];
                     
                                 function typewriterEffect(element, text, delay = 20) {
+                                    if (text.length > 150) {
+                                        delay = 15; // Faster for long texts
+                                    } else if (text.length > 50) {
+                                        delay = 20; // Standard speed for medium texts
+                                    }
                                     let index = 0;
                     
                                     function type() {
@@ -420,7 +425,7 @@
             let index = 0;
             function type() {
                 if (index < text.length) {
-                    $(".input-container").css("bottom", "150px");
+                    $(".input-container").css("bottom", "200px");
                     $("#text").css("border", "none");
                     document.getElementById("text").innerHTML += text.charAt(index);
                     index++;
