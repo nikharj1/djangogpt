@@ -650,13 +650,26 @@ button {
     background-color: #424242;
 }
 
-#session {
+.light-mode #session {
     margin-top: 10px;
     margin-bottom: 14px;
     border: none;
     width: 100%;
     font-size: 17px;
     font-weight: 600;
+    background: none;
+    color: #000000;
+}
+
+.dark-mode #session {
+    margin-top: 10px;
+    margin-bottom: 14px;
+    border: none;
+    width: 100%;
+    font-size: 17px;
+    font-weight: 600;
+    background: none;
+    color: #fff;
 }
 
 .mode-icon {

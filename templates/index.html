@@ -64,7 +64,12 @@
                     
                 </div>
                 <div class="logo-container">
-                    <img src={% static 'images/sidebar.png' %} style="height:40px; width:40px;" title="SideBar" id="sidebar-toggle2" alt="Sidebar">
+                   
+                    <svg id="sidebar-toggle2" class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="height:35px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18m-6-6h6m-6 12h6" />
+                    </svg>
+            
+                    {% comment %} <img src={% static 'images/sidebar.png' %} style="height:40px; width:40px;" title="SideBar" id="sidebar-toggle2" alt="Sidebar"> {% endcomment %}
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a id="logo" href="https://xgenplus.com/"><h1 >DilGPT&nbsp;</a>
                       <i class="fa fa-caret-down"></i>
