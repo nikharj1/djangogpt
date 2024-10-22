@@ -99,7 +99,7 @@ def generate_text_to_image(request, prompt):
         with open(media_path, 'wb') as f:
             f.write(image_data)
 
-        # Save the chat history with the image path
+        
         chat_save = chat_history.objects.create(
             user_message=prompt,
             bot_response="Generated Image",

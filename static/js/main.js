@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('sidebar-toggle');
     const sidebarToggle2 = 
             document.getElementById('sidebar-toggle2');
-            
+    const chatContent = 
+            document.querySelector('.chat-content');
     const chatContainer = 
             document.querySelector('.chat-container');
     
@@ -31,11 +32,13 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.classList.toggle('collapsed');
 
         if (sidebar.classList.contains('collapsed')) {
-            chatContainer.style.width = '96%';
-            chatContainer.style.marginLeft = '3%';
+            
+            
+            chatContent.style.width = '84%';
         } else {
             
-            chatContainer.style.marginLeft = '225px';
+            chatContent.style.width = '100%';
+            
         }
     });
     sidebarToggle2.addEventListener('click', function () {
@@ -43,10 +46,14 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.classList.toggle('collapsed');
 
         if (sidebar.classList.contains('collapsed')) {
-            chatContainer.style.width = '96%';
+            chatContent.style.width = '96%';
+            chatContent.style.overflow = 'hidden';
+            chatContainer.style.width = '100%';
             chatContainer.style.marginLeft = '3%';
+            chatContainer.style.overflow = 'hidden';
         } else {
             
+            chatContent.style.width = '95%';
             chatContainer.style.marginLeft = '225px';
             sidebar.style.display = "block";
         }

@@ -33,9 +33,9 @@
         </div>
         
         <div class="sidebar-content">
-            <a href="{% url "home" %}"><button id="new-conversation-btn pb-5" style=" margin-left: 15px ! important; border: 1px solid ! important;">
+            <button id="new-conversation-btn" style=" margin-left: 15px ! important; border: 1px solid ! important;">
               New Chat
-                </button></a>
+            </button>
                
                 <div class="conversation-list pt-3">
                     <div class="conversation">
@@ -467,6 +467,34 @@
                     }
                 });
             });
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                $("#new-conversation-btn").click(function(event) {
+                    $("body").css("background-color", "#000000"); // Change to blink color
+                    setTimeout(function() {
+                        $("body").css("background-color", ""); // Revert back to original
+                    }, 100); // Blink duration
+        
+                    // Show overlay and loader
+                    $("#overlay").show();
+                    // Remove overlay after 500 milliseconds
+                    setTimeout(function() {
+                        $("#overlay").hide();
+                    }, 500);
+                    const sidebar = document.querySelector('.sidebar');
+                sidebar.classList.add('collapsed'); // Add 'collapsed' class to collapse it
+                const chatContainer = document.querySelector('.chat-container'); // Ensure chatContainer is defined
+
+                chatContainer.style.width = '96%';
+                chatContainer.style.marginLeft = '3%';
+                sidebar.style.display = 'none'; // Hides the sidebar
+                });
+                $("#chat-box").empty();
+
+            });
+
         </script>
   
 </body>
