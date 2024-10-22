@@ -8,7 +8,7 @@ import datetime
 
 
 class chat_history(models.Model):
-    # uuid = models.CharField(max_length=255, unique=True)
+    uuid = models.CharField(max_length=255, unique=True)
     date = models.DateField(default=datetime.date.today)
     user_message = models.TextField()
     bot_response = models.TextField()

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 import html2text
-
+import uuid
 from bs4 import BeautifulSoup
 from django.views.decorators.csrf import csrf_exempt
 import requests
@@ -25,7 +25,31 @@ from huggingface_hub import InferenceClient
 client = InferenceClient(api_key=settings.API_KEY_HUGGINGFACE)
 
 
+def generate_unique_uuid():
+    while True:
+        new_uuid = uuid.uuid4()
+        check_uuid = chat_history.objects.filter(uuid=str(new_uuid)).exists()
+        if not check_uuid:
+            return str(new_uuid)
+
 def home(request):
+    try:
+        if 'new_uuid' in request.session:
+            pass
+        else:
+            raise KeyError("UUID not found")
+    except Exception as e:
+        
+        if request.user.is_authenticated:
+            if 'new_uuid' in request.session:
+                pass
+            else:
+                new_chat_id = generate_unique_uuid()
+                request.session['new_uuid'] = new_chat_id
+        else:
+            
+            print(f"User not authenticated or missing uuid: {e}")
+
     all_chats = chat_history.objects.filter(
         username=request.user.username
     ).annotate(
@@ -41,6 +65,11 @@ def home(request):
 
 def generate_text(request, prompt):
     content = ""
+    chat_uuid = ""
+    try:
+        chat_uuid = request.session['new_uuid']
+    except Exception as e:
+        print("User not authenticated or not uuid : ",e)
     url = settings.TEXT_TO_TEXT
     
     payload = json.dumps({
@@ -67,17 +96,23 @@ def generate_text(request, prompt):
         data = json.loads(response.text)
         
         content = data['choices'][0]['message']['content']
-    
         
-        chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
-        chat_save.save()
+            
+        
+        chat_save = chat_history.objects.create(user_message=prompt, uuid=chat_uuid, bot_response=content, username=request.user.username)
+        chat_save.save() 
     else:
         content = "i can't understand please try again"
-        chat_save = chat_history.objects.create(user_message=prompt, bot_response=content, username=request.user.username)
+        chat_save = chat_history.objects.create(user_message=prompt, uuid = chat_uuid, bot_response=content, username=request.user.username)
         chat_save.save()
     return content
 
 def generate_text_to_image(request, prompt):
+    chat_uuid = ""
+    try:
+        chat_uuid = request.session['new_uuid']
+    except Exception as e:
+        print("User not authenticated or not uuid : ",e)
     try:
         url = settings.TEXT_TO_IMAGE
         payload = {
@@ -100,11 +135,12 @@ def generate_text_to_image(request, prompt):
             f.write(image_data)
 
         
+        
         chat_save = chat_history.objects.create(
             user_message=prompt,
             bot_response="Generated Image",
             image_path=os.path.join('Bot_response', image_filename),
-            username=request.user.username
+            username=request.user.username, uuid=chat_uuid
         )
         chat_save.save()
         return image_filename
@@ -115,7 +151,8 @@ def generate_text_to_image(request, prompt):
         chat_save = chat_history.objects.create(
             user_message=prompt,
             bot_response=e,
-            username=request.user.username
+            username=request.user.username,
+            uuid = chat_uuid
         )
         chat_save.save()
         return "Something went wrong..!!!"
@@ -327,5 +364,15 @@ def chat_with_bot(request):
             }
         })
 
+
+
+@csrf_exempt
+def new_chat(request):
+    if request.user.is_authenticated:
+        new_chat_id = generate_unique_uuid()
+        request.session['new_uuid'] = new_chat_id
+    else:
+        pass
+    return JsonResponse({'success': True})
 
 

@@ -12,6 +12,7 @@ urlpatterns = [
     path("authentication", authentication ,name="authentication"),
     path("handlelogout", handlelogout ,name="handlelogout"),
     path("session_chat", session_chat ,name="session_chat"),
+    path("new_chat", new_chat ,name="new_chat"),
 
 ]
 

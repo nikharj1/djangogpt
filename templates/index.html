@@ -64,8 +64,10 @@
                     
                 </div>
                 <div class="logo-container">
-                    <a id="logo" href="https://xgenplus.com/"><h1 id="sidebar-toggle2">DilGPT&nbsp;</a>
-                      <i class="fa fa-caret-right"></i>
+                    <img src={% static 'images/sidebar.png' %} style="height:40px; width:40px;" title="SideBar" id="sidebar-toggle2" alt="Sidebar">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="logo" href="https://xgenplus.com/"><h1 >DilGPT&nbsp;</a>
+                      <i class="fa fa-caret-down"></i>
                       </h1> 
                     
                 </div>
@@ -472,6 +474,7 @@
         <script>
             $(document).ready(function() {
                 $("#new-conversation-btn").click(function(event) {
+                   
                     $("body").css("background-color", "#000000"); // Change to blink color
                     setTimeout(function() {
                         $("body").css("background-color", ""); // Revert back to original
@@ -484,14 +487,45 @@
                         $("#overlay").hide();
                     }, 500);
                     const sidebar = document.querySelector('.sidebar');
-                sidebar.classList.add('collapsed'); // Add 'collapsed' class to collapse it
-                const chatContainer = document.querySelector('.chat-container'); // Ensure chatContainer is defined
+                    sidebar.classList.add('collapsed'); // Add 'collapsed' class to collapse it
+                    const chatContainer = document.querySelector('.chat-container'); // Ensure chatContainer is defined
 
-                chatContainer.style.width = '96%';
-                chatContainer.style.marginLeft = '3%';
-                sidebar.style.display = 'none'; // Hides the sidebar
+                    chatContainer.style.width = '96%';
+                    chatContainer.style.marginLeft = '3%';
+                    sidebar.style.display = 'none'; // Hides the sidebar
+                    $("#user-input").val(""); // Clear input
+                    $("#fileinput").val(""); // Corrected: Clear the file input, not #fileinputs
+                    $("#file-name").text(""); // Assuming there's an element for file name
+                    $.ajax({
+                        url: '{% url "new_chat" %}',  
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                $.ajax({
+                                    url: window.location.href,
+                                    type: 'GET',
+                                    success: function(data) {
+                                        
+                                        var newContent = $(data).find('.light-mode').html();
+                                        $(".light-mode").html(newContent);
+                                    },
+                                    error: function() {
+                                        console.error('Failed to fetch new content');
+                                    }
+                                });
+                               
+                            } else {
+                                 
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Ajax request failed: ');
+                        }
+                    });
+                    
+                    
                 });
-                $("#chat-box").empty();
+                
 
             });
 
