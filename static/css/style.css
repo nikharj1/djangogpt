@@ -157,7 +157,7 @@ body {
     height: 100vh;
     border-radius: 0;
     box-shadow: none;
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 .sidebar.collapsed+.chat-container {
@@ -297,7 +297,7 @@ input:checked+.slider:before {
     flex-direction: column;
     align-items: end;
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
     padding: 15px;
 }
 
