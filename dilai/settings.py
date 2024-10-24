@@ -81,11 +81,11 @@ WSGI_APPLICATION = "dilai.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "Test",  # Replace with your database name
-        "USER": "postgres",   # Replace with your database user
-        "PASSWORD": "1234",     # Replace with your database password
-        "HOST": "localhost",             # Set to your database host (e.g., 'localhost' or IP address)
-        "PORT": "5432",                  # Default port for PostgreSQL
+        "NAME": "Test",  
+        "USER": "postgres",   
+        "PASSWORD": "1234",     
+        "HOST": "localhost",             
+        "PORT": "5432",                  
     }
 }
 
@@ -146,4 +146,10 @@ TEXT_TO_IMAGE = "http://10.11.13.243:7860/sdapi/v1/txt2img"
 
 API_KEY_HUGGINGFACE = "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"
 
-IMAGE_TEXT_TO_TEXT = "http://10.11.13.243:7860/api/generate"
+IMAGE_TEXT_TO_TEXT = "http://10.11.13.243:11434/api/generate"
+
+AUTH_TOKEN = "4321"
+
+
+OPEN_WEB_UI_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM0NmZiNjhlLWZlODktNGMxOS05YWNhLTJkMWJmYzcwMGU5OCJ9.yrzr-QSZeyS51WGXB8tC-zsltxpfk5n6TO41Pibxs0k"   
+

@@ -59,16 +59,16 @@
             <div class="chat-header">
                 <div class="logo-container" id="newchat">
                     
-                    <a href="{% url "home" %}"><i class="fas fa-edit" id="newchat" style="font-size:25px; color:#0c0c0c;"></i></a>
+                    <i class="fas fa-edit" id="newchat" style="font-size:25px; color:#0c0c0c;"></i>
                       
                     
                 </div>
                 <div class="logo-container">
-                   
+                    {% if request.user.is_authenticated %}
                     <svg id="sidebar-toggle2" class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="height:35px;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12h18m-6-6h6m-6 12h6" />
                     </svg>
-            
+            {% endif %}
                     {% comment %} <img src={% static 'images/sidebar.png' %} style="height:40px; width:40px;" title="SideBar" id="sidebar-toggle2" alt="Sidebar"> {% endcomment %}
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a id="logo" href="https://xgenplus.com/"><h1 >DilGPT&nbsp;</a>
@@ -152,11 +152,10 @@
             });
             function escapeHtml(unsafe) {
                 return unsafe
-                    .replace(/&/g, "&amp;")
+                    
                     .replace(/</g, "&lt;")
                     .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#39;");
+                    
             }
             
             function formatContent(content) {
@@ -226,8 +225,8 @@
                     url: '{% url "chat_with_bot" %}',  
                     type: 'POST',
                     data: formData,
-                    processData: false, // Prevent jQuery from converting the data
-                    contentType: false, // Set contentType to false for FormData
+                    processData: false, 
+                    contentType: false, 
                     success: function(response) {
                         if (response.success) {
                             $("#user-input").removeClass("not-allowed").attr("readonly", false);
@@ -239,57 +238,49 @@
                                 const imageHtml = `<img class="bot-message" src="${imageUrl}" style="height:250px; width:250px;" alt="Generated Image" />`;
                                 $("#chat-box").append(imageHtml);
                             } else {
-                                const messageContent = response.message; // Your message with HTML
+                                const messageContent = formatContent(response.message);
                                 const chatBox = $("#chat-box");
 
-                                function typeMessage(container, message, delay) {
-                                    const textContainer = $("<div class='bot-message'></div>");
-                                    container.append(textContainer);
-
+                                // Create a function to simulate typing
+                                function typeMessage(message, container) {
+                                    const parts = message.split(/<br\s*\/?>/); // Split by <br> tags
+                                    let partIndex = 0;
                                     let index = 0;
 
-                                    function type() {
-                                        if (index < message.length) {
-                                            const nextChar = message[index];
-
-                                            // If the character is a special HTML character (like '<'), handle it
-                                            if (nextChar === "<") {
-                                                // Find the closing '>'
-                                                const closingTagIndex = message.indexOf(">", index);
-                                                if (closingTagIndex !== -1) {
-                                                    // Extract the full tag
-                                                    const tag = message.slice(index, closingTagIndex + 1);
-                                                    textContainer.append(tag);
-                                                    index = closingTagIndex + 1; // Move index past the tag
-                                                } else {
-                                                    // If no closing tag, just append the character
-                                                    textContainer.append(nextChar);
-                                                    index++;
-                                                }
-                                            } else {
-                                                // Append the character
-                                                textContainer.append(nextChar);
+                                    const typingInterval = setInterval(() => {
+                                        if (partIndex < parts.length) {
+                                            if (index < parts[partIndex].length) {
+                                                // Append the next character to the container
+                                                container.append(parts[partIndex][index]);
                                                 index++;
+                                            } else {
+                                                // Move to the next part
+                                                container.append("<br>"); // Add a line break
+                                                partIndex++;
+                                                index = 0; // Reset index for the next part
                                             }
-
-                                            setTimeout(type, delay);
                                         } else {
-                                            
+                                            clearInterval(typingInterval); // Clear the interval when done
                                         }
-                                    }
-
-                                    type();
+                                    }, 15); // Adjust typing speed here (20ms between characters)
                                 }
 
-                                chatBox.append(`
+                                // Create the bot message container
+                                const botMessageContainer = `
                                     <div class="bot-message-container">
                                         <div class="bot-icon">
-                                            <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="Bot Icon" style="height:24px; width:24px; margin-top:10px;" />
+                                            <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
                                         </div>
+                                        <div class="bot-message"></div>
                                     </div>
-                                `);
+                                `;
 
-                                typeMessage(chatBox.find('.bot-message-container'), messageContent, 25); // Adjust delay as needed
+                                // Append the bot message container to the chat box
+                                chatBox.append(botMessageContainer);
+
+                                // Get the message div and start typing the message
+                                const messageDiv = chatBox.find(".bot-message").last();
+                                typeMessage(messageContent, messageDiv);
 
 
                                 
@@ -297,14 +288,16 @@
                             }
                             scrollToBottom();
                         } else {
+                            const messageContent = formatContent(response.message);
                              $("#user-input").removeClass("not-allowed").attr("readonly", false);
                             $(".typing").remove();
                             $(".typing-indicator").remove();
-                            $("#chat-box").append(`<div class="bot-message-container">
+                            $("#chat-box").append(`
+                            <div class="bot-message-container">
                                 <div class="bot-icon">
                                     <img src="https://www.dil.in/wp-content/uploads/2015/12/favi.png" alt="User Icon" style="height:24px; width:24px; margin-top:10px;" />
                                 </div>
-                            <div class="bot-message error-message">${response.message}</div> </div>`); // Using response.message for errors
+                            <div class="bot-message error-message">${messageContent}</div> </div>`); // Using response.message for errors
                         }
                     },
                     error: function(xhr, status, error) {
@@ -479,7 +472,7 @@
         <script>
             $(document).ready(function() {
                 $("#new-conversation-btn").click(function(event) {
-                   
+                    $("#chat-box").empty();
                     $("body").css("background-color", "#000000"); // Change to blink color
                     setTimeout(function() {
                         $("body").css("background-color", ""); // Revert back to original
@@ -510,14 +503,79 @@
                                     url: window.location.href,
                                     type: 'GET',
                                     success: function(data) {
+                                        console.log("Navigated to homepage without refresh");
+                                
+                                        window.location.href = response.redirect_url;
+                                
                                         
-                                        var newContent = $(data).find('.light-mode').html();
-                                        $(".light-mode").html(newContent);
                                     },
                                     error: function() {
-                                        console.error('Failed to fetch new content');
+                                        console.error('Failed to navigate to homepage');
                                     }
                                 });
+                                
+                               
+                            } else {
+                                 
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Ajax request failed: ');
+                        }
+                    });
+                    
+                    
+                });
+                
+
+            });
+
+        </script>
+        <script>
+            $(document).ready(function() {
+                $("#newchat").click(function(event) {
+                    $("#chat-box").empty();
+                    $("body").css("background-color", "#000000"); // Change to blink color
+                    setTimeout(function() {
+                        $("body").css("background-color", ""); // Revert back to original
+                    }, 100); // Blink duration
+        
+                    // Show overlay and loader
+                    $("#overlay").show();
+                    // Remove overlay after 500 milliseconds
+                    setTimeout(function() {
+                        $("#overlay").hide();
+                    }, 500);
+                    const sidebar = document.querySelector('.sidebar');
+                    sidebar.classList.add('collapsed'); // Add 'collapsed' class to collapse it
+                    const chatContainer = document.querySelector('.chat-container'); // Ensure chatContainer is defined
+
+                    chatContainer.style.width = '96%';
+                    chatContainer.style.marginLeft = '3%';
+                    sidebar.style.display = 'none'; // Hides the sidebar
+                    $("#user-input").val(""); // Clear input
+                    $("#fileinput").val(""); // Corrected: Clear the file input, not #fileinputs
+                    $("#file-name").text(""); // Assuming there's an element for file name
+                    $.ajax({
+                        url: '{% url "new_chat" %}',  
+                        type: 'POST',
+                        success: function(response) {
+                            if (response.success) {
+                                $.ajax({
+                                    url: window.location.href,
+                                    type: 'GET',
+                                    success: function(data) {
+                                        console.log("Navigated to homepage without refresh");
+                                
+                                        window.location.href = response.redirect_url;
+                                
+                                        
+                                    },
+                                    error: function() {
+                                        console.error('Failed to navigate to homepage');
+                                    }
+                                });
+                                
                                
                             } else {
                                  
